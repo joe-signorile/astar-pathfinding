@@ -1,6 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using TinyIoC;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,10 +10,12 @@ using Debug = UnityEngine.Debug;
 public class PathfindingService {
     private readonly PathResult failedPath = new();
     private readonly GraphFactory graphFactory;
+    private readonly UiService uiService;
     private Graph graph;
 
     public PathfindingService() {
         graphFactory = new GraphFactory();
+        uiService = TinyIoCContainer.Current.Resolve<UiService>();
     }
 
     public async Task Start() {
@@ -22,6 +24,7 @@ public class PathfindingService {
     }
 
     public async Task<PathResult> FindPath(Vector3 start, Vector3 end) {
+        uiService.Report(UiSupportedViews.Game, "Path Requested");
         var stopwatch = Stopwatch.StartNew();
         var pathRequest = new PathRequest(start, end, graph.GetNodeIndex(start), graph.GetNodeIndex(end));
 
@@ -29,32 +32,31 @@ public class PathfindingService {
         var simplePath = await PathSimplificationJobAsync(rawPath, pathRequest);
         var smoothPath = await PathSmoothJobAsync(simplePath, pathRequest);
 
-        Debug.Log($"Raw Path: {rawPath.Length}\nSimple Path: {simplePath.Length}\nSmooth Path: {smoothPath.Length}");
-
         var pathResult = failedPath;
-        var log = $"Path Result{Environment.NewLine}  Start: {pathRequest.startPoint}{Environment.NewLine}  End: {pathRequest.endPoint}";
+        var report = "Path Result: ";
         if (smoothPath.Length > 0) {
-            log += Environment.NewLine + "Smooth Path Found";
+            report += "Smooth Path Found";
             pathResult = new PathResult(smoothPath);
         }
         else if (simplePath.Length > 0) {
-            log += Environment.NewLine + "Simple Path Found";
+            report += "Simple Path Found";
             pathResult = new PathResult(simplePath);
         }
         else if (rawPath.Length > 0) {
-            log += Environment.NewLine + "Raw Path Found";
+            report += "Raw Path Found";
             pathResult = new PathResult(graph, rawPath);
         }
         else
-            log += Environment.NewLine + "Path Failed";
+            report += "Path Failed";
 
         stopwatch.Stop();
-        log += Environment.NewLine + $"Duration: {stopwatch.ElapsedMilliseconds}ms";
-        Debug.Log(log);
+        report += $"({stopwatch.ElapsedMilliseconds}ms)";
 
         if (rawPath.IsCreated) rawPath.Dispose();
         if (simplePath.IsCreated) simplePath.Dispose();
         if (smoothPath.IsCreated) smoothPath.Dispose();
+
+        uiService.Report(UiSupportedViews.Game, report);
 
         return pathResult;
     }

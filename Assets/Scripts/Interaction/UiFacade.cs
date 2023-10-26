@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TinyIoC;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,11 +19,12 @@ public class UiFacade {
     private Dictionary<string, RectTransform> uiElements;
     private GameObject uiRoot;
     private UiService uiService;
+    private Dictionary<UiSupportedViews, TextMeshProUGUI> viewToReportMap;
 
     public UiSupportedViews CurrentView { get; private set; }
 
     public async Task Start() {
-        await Task.Delay(10);
+        await Task.Yield();
         uiService = TinyIoCContainer.Current.Resolve<UiService>();
         uiRoot = GameObject.Find("UI");
         canvas = uiRoot.transform.Find("Canvas").GetComponent<Canvas>();
@@ -38,10 +40,16 @@ public class UiFacade {
                 throw new Exception("Missing RectTransform on Canvas Element: " + elementName);
         }
 
+        viewToReportMap = new Dictionary<UiSupportedViews, TextMeshProUGUI>();
         foreach (var state in Enum.GetValues(typeof(UiSupportedViews))) {
             var supportedViewName = state.ToString();
             if (!uiElements.ContainsKey(supportedViewName))
                 throw new Exception("Missing Supported View: " + supportedViewName);
+
+            var rect = uiElements[supportedViewName];
+            var reportElement = rect.Find("Report")?.GetComponent<TextMeshProUGUI>();
+            if (reportElement)
+                viewToReportMap[(UiSupportedViews)state] = reportElement;
         }
 
         SetupInteractions(UiSupportedViews.Start, uiService.StartWorld);
@@ -63,6 +71,11 @@ public class UiFacade {
             image.raycastTarget = false;
         });
         trigger.triggers.Add(entry);
+    }
+
+    public void Report(UiSupportedViews view, string report) {
+        if (viewToReportMap.ContainsKey(view))
+            viewToReportMap[view].text = report;
     }
 
     public async Task ToLoading() {

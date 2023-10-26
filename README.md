@@ -1,43 +1,26 @@
 # Project Summary
-I have chosen to implement Bidirectional A* Pathfinding using Unity Jobs. This will result in very fast path calculations, even for many agents. Path Smoothing and Graph Scanning are also implemented with Unity Jobs, allowing optional path smoothing as well as quickly scanning the graph.
+I have chosen to implement Bidirectional A* Pathfinding using Unity Jobs and Burst with optional Path Smoothing.
+Graph Scanning is done against the 3d world, with an example generated forest.
 
 
 # Architecture
-Seeker
-  |
-  | uses
-  v
-PathfindingService <----- Graph
-  |                        ^
-  | uses                   | schedules
-  v                        |
-PathRequest ----> PathfindingJob
-  ^                        |
-  |                        | uses
-  | contains               v
-  |------------------- GraphNode
-  |
-  | contains
-  v
-PathResult <---- Path
+!classes
 
 
 # Classes
 Seeker: Game objects that are seeking a path through the game world.
 
-Graph: Represents the game world as a 2D grid on the XZ plane and is used by the PathfindingJob to find paths.
+Graph: Represents the game world as a 2D grid on the XZ plane and is used by the PathfindingService to find paths.
 
-GraphFactory: Uses RaycastCommand to scan the game world for walkable nodes
+GraphFactory: Uses RaycastCommand to scan the game world for walkable nodes.
 
-GraphTransformJob: A Unity Job that transforms the GraphFactory's RaycastCommand to a Graph
+GraphTransformJob: A Unity Job that transforms the GraphFactory's RaycastCommand to a Graph.
 
-GraphNode: This class represents a node in the graph. It should contain information about its position in the world, its connections to neighboring nodes, and its cost (which could be higher for nodes that contain obstacles).
+GraphNode: This class represents a node in the graph. It contains information about its position in the world, its connections to neighboring nodes, and its cost.
 
-PathfindingService: An interface that provides methods for Seekers to request paths, using the JobScheduler to run Jobs and returning the resulting paths.
+PathfindingService: An interface that provides a method for Seekers to request paths.
 
-Path: This class represents a path through the graph as an array of world positions and the total cost of the path
+PathRequest: This class represents a pathfinding request. It contains the start and end points of the requested path as both node indices and world positions.
 
-PathRequest: This class represents a pathfinding request. It contains the start and end points of the requested path
-
-PathResult: This class represents the result of a pathfinding request. It contains the resulting Path and any other relevant information like whether the pathfinding was successful.
+PathResult: This class represents the result of a pathfinding request. It transforms the job outputs to useable paths.
 

@@ -673,7 +673,7 @@ GameObject:
   - component: {fileID: 748008602}
   - component: {fileID: 748008601}
   m_Layer: 5
-  m_Name: text
+  m_Name: Report
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -807,7 +807,7 @@ GameObject:
   - component: {fileID: 822037787}
   - component: {fileID: 822037786}
   m_Layer: 5
-  m_Name: text
+  m_Name: Report
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1241,7 +1241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.33571365, g: 0.4339623, b: 0.23540407, a: 1}
+  m_Color: {r: 0.38915095, g: 0.4922549, b: 0.5, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1406,7 +1406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.47982192, g: 0.8490566, b: 0.25231397, a: 0.7294118}
+  m_Color: {r: 0.2509804, g: 0.8335356, b: 0.8509804, a: 0.39607844}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

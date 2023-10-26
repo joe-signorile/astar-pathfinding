@@ -26,4 +26,8 @@ public class UiService {
         await appLoader.StartGame();
         await facade.ToGame();
     }
+
+    public void Report(UiSupportedViews view, string report) {
+        facade.Report(view, report);
+    }
 }
