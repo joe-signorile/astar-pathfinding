@@ -7,7 +7,9 @@ The only third party library used is TinyIoC which is located at `Scripts/TinyIo
 
 # Usage
 The entrypoint is `/Scripts/AppLoader.cs`
+
 The pathfinding solution is at `/Scripts/Pathfinding/`
+
 `Seeker.MoveTo(..)` Calls `PathfindingService.FindPath(...)`
 
 
