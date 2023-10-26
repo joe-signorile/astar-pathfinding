@@ -4,7 +4,7 @@ Graph Scanning is done against the 3d world, with an example generated forest.
 
 
 # Architecture
-!classes
+![alt class diagram](https://github.com/joe-signorile/astar-pathfinding/blob/main/classes.png)
 
 
 # Classes
