@@ -1,7 +1,9 @@
 # Project Summary
  - Bidirectional A* Pathfinding using Unity Jobs and Burst with optional Path Smoothing.
  - Graph Scanning is done against the 3d world, with an example generator at `WorldService`.
- - The only third party library used is TinyIoC which is located at `Scripts/TinyIoC.cs`
+ - Third party libraries:
+    - Dependency injection`Scripts/TinyIoC.cs`
+    - Procedural generation `Scripts/FastPoissonDiskSampling`
 
 
 # Usage
