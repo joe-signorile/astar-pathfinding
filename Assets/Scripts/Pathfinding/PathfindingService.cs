@@ -93,11 +93,13 @@ public class PathfindingService {
 
         for (var i = 1; i < originalPath.Length - 1; i++) originalPath[i] = graph.Nodes[rawPath[i]].Position;
 
-        var tolerance = graph.NodeSize * 0.75f;
+        var tolerance = graph.NodeSize * 0.5f;
         var pathSimplificationJob = new PathSimplificationJob {
             path = originalPath,
             tolerance = tolerance,
-            result = new NativeList<float3>(Allocator.Persistent)
+            result = new NativeList<float3>(Allocator.Persistent),
+            graphNodes = graph.Nodes,
+            NodeSize = graph.NodeSize
         };
 
         var pathSimplificationJobHandle = pathSimplificationJob.Schedule();
