@@ -6,40 +6,40 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 public class WorldService {
-    private readonly string[] obstacleNames = { "Tree-1", "Tree-2", "Rock" };
-    private float2 center;
-    private float minRadius, maxRadius;
-    private GameObject[] obstaclePrefabs;
-    private float[] obstacleProbabilities;
-    private Transform worldContainer;
-    public int2 Size { get; private set; }
+    private readonly WorldConfig worldConfig;
+    private readonly Transform worldContainer;
+
+    public WorldService() {
+        worldConfig = new WorldConfig();
+        worldContainer = GameObject.Find("World").transform;
+    }
 
     public async Task Start() {
-        Size = new int2(100, 100);
-        center = new float2(Size.x * 0.5f, Size.y * 0.5f);
-        minRadius = 3;
-        maxRadius = 15;
+        var obstacles = worldConfig.Obstacles;
+        var center = new float2(worldConfig.Size.x * 0.5f, worldConfig.Size.y * 0.5f);
         var delay = Task.Yield();
 
-        worldContainer = GameObject.Find("World").transform;
-        obstaclePrefabs = new GameObject[obstacleNames.Length];
-        obstacleProbabilities = new float[obstacleNames.Length];
-        for (var i = 0; i < obstacleNames.Length; i++) {
-            var obstacleName = obstacleNames[i];
+        var obstaclePrefabs = new GameObject[obstacles.Length];
+        var obstacleProbabilities = new float[obstacles.Length];
+        for (var i = 0; i < obstacles.Length; i++) {
+            var obstacle = obstacles[i];
+            var obstacleName = obstacle.Id;
+            var probability = obstacle.Probability;
+
             var obstaclePrefab = Resources.Load<GameObject>($"World/{obstacleName}");
             if (obstaclePrefab == null)
                 throw new Exception("Missing Obstacle Prefab" + obstacleName);
 
-            var probability = obstaclePrefab.GetComponent<Probability>();
-
             obstaclePrefabs[i] = obstaclePrefab;
-            obstacleProbabilities[i] = probability.value;
+            obstacleProbabilities[i] = probability;
         }
 
         await delay;
 
-        for (var x = 0; x < Size.x; x++) {
-            for (var y = 0; y < Size.y; y++) {
+        var minRadius = worldConfig.MinRadius;
+        var maxRadius = worldConfig.MaxRadius;
+        for (var x = 0; x < worldConfig.Size.x; x++) {
+            for (var y = 0; y < worldConfig.Size.y; y++) {
                 var worldX = x - center.x;
                 var worldZ = y - center.y;
 
@@ -48,16 +48,11 @@ public class WorldService {
 
                 if (distance <= minRadius) continue;
 
-                float probability;
-                if (distance >= maxRadius)
-                    probability = 1f;
-                else
-                    probability = Mathf.Lerp(0f, 1f, (distance - minRadius) / (maxRadius - minRadius));
-
+                var probability = distance >= maxRadius ? 1f : Mathf.Lerp(0f, 1f, (distance - minRadius) / (maxRadius - minRadius));
                 var random = Random.value;
                 if (random > probability) continue;
 
-                var prefab = ChooseObstaclePrefab();
+                var prefab = ChooseObstaclePrefab(obstacleProbabilities, obstaclePrefabs);
                 if (!prefab) continue;
 
                 Object.Instantiate(prefab, point, Quaternion.identity, worldContainer);
@@ -65,13 +60,13 @@ public class WorldService {
         }
     }
 
-    private GameObject ChooseObstaclePrefab() {
+    private GameObject ChooseObstaclePrefab(float[] probabilities, GameObject[] prefabs) {
         var randomNumber = Random.Range(0f, 100f);
 
-        for (var i = 0; i < obstaclePrefabs.Length; i++) {
-            randomNumber -= obstacleProbabilities[i];
+        for (var i = 0; i < probabilities.Length; i++) {
+            randomNumber -= probabilities[i];
 
-            if (randomNumber <= 0f) return obstaclePrefabs[i];
+            if (randomNumber <= 0f) return prefabs[i];
         }
 
         return null;
